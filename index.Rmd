@@ -1,0 +1,337 @@
+---
+title: "COVID-19 Dashboard"
+author: "Benedict Neo"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: rows
+    social: menu
+    source_code: embed
+    vertical_layout: fill
+---
+
+<style>                     
+.navbar {
+  background-color:black;
+  border-color:black;
+}
+</style>      
+
+```{r setup, include=FALSE, warnings=FALSE, message=FALSE}
+#------------------ Packages ------------------
+## For Dashboard
+library(flexdashboard)
+
+## Data cleaning 
+library(dplyr)
+library(tidyr)
+library(magrittr)
+library(purrr)
+library(forcats)
+
+## printing 
+library(glue)
+
+## Maps and Plots
+library(plotly)
+library(leaflet)
+library(leafpop)
+library(RColorBrewer)
+
+library(coronavirus)
+data(coronavirus)
+# View(coronavirus)
+
+#------------------ Data ------------------
+df <- coronavirus %>%
+    mutate(
+        country = trimws(country),
+        country = factor(country, levels = unique(country))
+    )
+
+# for time series plot
+df_daily <- coronavirus %>%
+    group_by(date, type) %>%
+    summarise(total = sum(cases, na.rm = T), .groups = "drop") %>%
+    pivot_wider(names_from = type,
+                values_from = total) %>%
+    arrange(date) %>%
+    ungroup() %>%
+    mutate(active =  confirmed - death - recovered) %>%
+    mutate(
+        confirmed_cum = cumsum(confirmed),
+        death_cum = cumsum(death),
+        recovered_cum = cumsum(recovered),
+        active_cum = cumsum(active)
+    )
+
+df_tree <- df %>%
+    group_by(country, type) %>%
+    summarise(total = sum(cases), .groups = "drop") %>%
+    pivot_wider(names_from = type, values_from = total) %>%
+    mutate(active = confirmed - death - recovered) %>%
+    pivot_longer(cols = -country,
+                 names_to = "type",
+                 values_to = "total")
+
+# for global statistics
+df_world <- df_tree %>%
+    group_by(type) %>%
+    summarise(total = sum(total), .groups = "drop") %>%
+    pivot_wider(names_from = type, values_from = total)
+
+# for leaflet map
+df_map <- df %>%
+    filter(cases > 0) %>%
+    group_by(country, province, lat, long, type) %>%
+    summarise(cases = sum(cases), .groups = "drop") %>%
+    mutate(log_cases = 2 * log(cases)) %>%
+    ungroup()
+
+df_map.split <- df_map %>%
+    split(df_map$type)
+```
+
+
+Overview
+=======================================================================
+
+Row
+-----------------------------------------------------------------------
+
+### confirmed {.value-box}
+
+```{r}
+confirmed <- format(df_world$confirmed, big.mark = ",")
+valueBox(value = confirmed, 
+         caption = "Total Confirmed Cases", 
+         color = "black")
+```
+
+
+### active {.value-box}
+
+```{r}
+active <- format(df_world$active, big.mark = ",")
+active_perc <- round(100 * df_world$active / df_world$confirmed, 1)
+
+valueBox(
+    value = glue("{active} ({active_perc}%)"),
+    caption = "Active Cases",
+    color = "blue"
+)
+```
+
+### recovered {.value-box}
+
+```{r}
+recovered <- format(df_world$recovered, big.mark = ",")
+recovered_perc <-
+    round(100 * df_world$recovered / df_world$confirmed, 1)
+
+valueBox(
+    value = glue("{recovered} ({recovered_perc}%)"),
+    caption = "Recovered Cases",
+    color = "green"
+)
+```
+
+### death {.value-box}
+
+```{r}
+death <- format(df_world$death, big.mark = ",")
+death_perc <- round(100 * df_world$death / df_world$confirmed, 1)
+
+valueBox(
+    value = glue("{death} ({death_perc}%)"),
+    caption = "Death Cases",
+    color = "red"
+)
+```
+
+
+Row {.tabset}
+-----------------------------------------------------------------------
+
+### Map of Cases
+
+```{r}
+# Color pallete
+pal <- colorFactor(c("grey", "red", "green"),
+                   domain = c("confirmed", "death", "recovered"))
+
+map_object <- leaflet() %>%
+    addProviderTiles(providers$CartoDB.DarkMatter) %>% 
+    setView(41.405559, 0.247590, zoom=2)
+
+names(df_map.split) %>%
+  walk(function(df) {
+    map_object <<- map_object %>%
+      addCircleMarkers(data=df_map.split[[df]],
+                 lng=~long, lat=~lat,
+                 color = ~pal(type),
+                 stroke = FALSE,
+                 fillOpacity = 0.5,
+                 radius = ~log_cases,
+                 popup =  popupTable(df_map.split[[df]],
+                                              feature.id = FALSE,
+                                              row.numbers = FALSE,
+                                              zcol=c("type","cases","country","province")),
+                 group = df,
+                 labelOptions = labelOptions(noHide = F,
+                                             direction = 'auto'))
+  })
+
+map_object %>%
+  addLayersControl(
+    overlayGroups = names(df_map.split),
+    options = layersControlOptions(collapsed = FALSE)) %>% 
+    hideGroup(c("confirmed", "recovered"))
+```
+
+
+Daily Cumulative Cases 
+=======================================================================
+
+Column {data-width=400}
+-------------------------------------
+
+### Time Series
+    
+```{r}
+fig <- plot_ly(
+    data = df_daily,
+    x = ~ date,
+    y = ~ active_cum,
+    name = "Active",
+    fillcolor = "blue",
+    type = "scatter",
+    mode = "none",
+    stackgroup = "one") %>%
+    add_trace(y = ~ recovered_cum,
+              name = "Recovered",
+              fillcolor = "green") %>%
+    add_trace(y = ~ death_cum,
+              name = "Death",
+              fillcolor = "red") %>%
+    layout(
+        title = "",
+        yaxis = list(title = "Cumulative Number of Cases"),
+        xaxis = list(title = "Date",
+                     type = "date"),
+        legend = list(x = 0.1, y = 0.9),
+        hovermode = "compare"
+    )
+fig
+```
+
+
+### Histogram of Daily Cases
+
+```{r}
+g <- ggplot(data=df_daily, aes(date, confirmed), color="black") +
+    geom_histogram(stat="identity") +
+    theme_classic() +
+    scale_y_continuous(labels = scales::label_number_si())
+
+ggplotly(g)
+```
+
+
+Top 20 Countries
+=======================================================================
+
+Column {.tabset}
+-------------------------------------
+
+```{r}
+top_20 <- df_tree %>% 
+    group_by(country, type) %>% 
+    pivot_wider(names_from = type, values_from=total) %>% 
+    arrange(-confirmed) %>% 
+    ungroup() %>% 
+    top_n(20)
+
+# top_20  %>%
+#     kbl() %>%
+#     kable_styling(
+#         bootstrap_options = c("striped", "hover", "condensed", "responsive"),
+#         position = "left",
+#         full_width = F
+#     ) %>% 
+#     scroll_box(width = "100%", height = "100%")
+
+nb.cols <- 20
+mycolors <- colorRampPalette(brewer.pal(10, "RdYlGn"))(nb.cols)
+```
+
+### Confirmed Cases
+```{r}
+confirmed <- top_20 %>% 
+    mutate(country = fct_reorder(country, confirmed)) %>% 
+    ggplot(top_20, mapping = aes(x=country, y=confirmed, fill=country)) + 
+    geom_bar(stat='identity') +
+    theme_classic() +
+    theme(legend.position = 'none') +
+    scale_fill_manual(values = rev(mycolors)) +
+    scale_y_continuous(labels = scales::label_number_si()) +
+    coord_flip() +
+    labs(x="Confirmed Cases", title="Top 20 countries for Confirmed Cases")
+
+ggplotly(confirmed)
+```
+
+### Death Cases
+```{r}
+death <- top_20 %>% 
+    mutate(country = fct_reorder(country, death)) %>% 
+    ggplot(top_20, mapping = aes(x=country, y=death, fill=country)) + 
+    geom_bar(stat='identity') +
+    theme_classic() +
+    theme(legend.position = 'none') +
+    scale_fill_manual(values = rev(mycolors)) +
+    scale_y_continuous(labels = scales::label_number_si()) +
+    coord_flip() +
+    labs(x="Death Cases", title="Top 20 countries for Death Cases")
+
+ggplotly(death)
+```
+
+### Active Cases
+
+```{r}
+active<- top_20 %>% 
+    mutate(country = fct_reorder(country, active)) %>% 
+    ggplot(top_20, mapping = aes(x=country, y=active, fill=country)) + 
+    geom_bar(stat='identity') +
+    theme_classic() +
+    theme(legend.position = 'none') +
+    scale_fill_manual(values = rev(mycolors)) +
+    scale_y_continuous(labels = scales::label_number_si()) +
+    coord_flip() +
+    labs(x="Active Cases", title="Top 20 countries for Active Cases")
+
+ggplotly(active)
+```
+
+
+About
+=======================================================================
+
+**The COVID-19 Dashboard**
+
+This dashboard provides an overview of the COVID-19 (2019-nCoV) epidemic. This dashboard was built with R using Rmarkdown and the Flexdashboard package. The Github Repository for this dashboard available [here](https://github.com/benthecoder/covid19-flexdashboard)
+
+**Data**
+
+The source of data for this dashboard is from the R package [coronavirus](https://github.com/RamiKrispin/coronavirus). With the raw data pulled from the [COVID-19 Data Repository by the Center for Systems Science and Engineering (CSSE) at Johns Hopkins University](https://github.com/CSSEGISandData/COVID-19)
+
+**Packages**
+
+* Dashboard interface - `flexdashboard`
+* Visualization - `plotly`, `RColorBrewer`
+* Data manipulation - `dplyr`, `tidyr`, `purrr`, `forcats`
+* Mapping - `leaflet`, `leafpop` 
+* Strings - `glue`
+* Data Source - `coronavirus`
+
+This dashboard was last updated at `r max(df$date)`
