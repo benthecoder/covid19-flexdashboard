@@ -1,0 +1,29 @@
+name: Data Refresh
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'
+
+jobs:
+  build:
+    name: refresh the dashboard
+    runs-on: ubuntu-latest
+    #
+    steps:
+      - uses: actions/checkout@v2
+      - name: setup-r
+        uses: r-lib/actions/setup-r@v1
+        with:
+          r-version: '4.0.2'
+      - run: R -e 'install.packages("renv")'
+      - name: Cache packages
+        uses: actions/cache@v1
+        with:
+           path: ${{ env.RENV_PATHS_ROOT }}
+           key: ${{ runner.os }}-renv-${{ hashFiles('**/renv.lock') }}
+           restore-keys: |-
+              ${{ runner.os }}-renv-
+      - run: sudo apt-get install -y --no-install-recommends libcurl4-openssl-dev
+      - run: R -e 'renv::restore()'
+      - name: Render Rmarkdown
+      - run: bash ./bash/data_refresh.sh
