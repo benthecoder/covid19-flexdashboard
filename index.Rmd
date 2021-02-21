@@ -22,6 +22,7 @@ output:
 library(flexdashboard)
 
 ## Data cleaning 
+library(data.table)
 library(dplyr)
 library(tidyr)
 library(magrittr)
@@ -37,19 +38,16 @@ library(leaflet)
 library(leafpop)
 library(RColorBrewer)
 
-library(coronavirus)
-data(coronavirus)
-# View(coronavirus)
-
 #------------------ Data ------------------
-df <- coronavirus %>%
+url <- "https://raw.githubusercontent.com/RamiKrispin/coronavirus/master/csv/coronavirus.csv"
+df <- fread(url) %>%
     mutate(
         country = trimws(country),
         country = factor(country, levels = unique(country))
     )
 
 # for time series plot
-df_daily <- coronavirus %>%
+df_daily <- df %>%
     group_by(date, type) %>%
     summarise(total = sum(cases, na.rm = T), .groups = "drop") %>%
     pivot_wider(names_from = type,
@@ -260,6 +258,7 @@ top_20 <- df_tree %>%
 #     ) %>% 
 #     scroll_box(width = "100%", height = "100%")
 
+# define 20 colors with colorRampPalette
 nb.cols <- 20
 mycolors <- colorRampPalette(brewer.pal(10, "RdYlGn"))(nb.cols)
 ```
@@ -274,8 +273,9 @@ confirmed <- top_20 %>%
     theme(legend.position = 'none') +
     scale_fill_manual(values = rev(mycolors)) +
     scale_y_continuous(labels = scales::label_number_si()) +
+    labs(y="confirmed cases", x="") +
     coord_flip() +
-    labs(x="Confirmed Cases", title="Top 20 countries for Confirmed Cases")
+    ggtitle("Top 20 countries for Confirmed Cases")
 
 ggplotly(confirmed)
 ```
@@ -290,8 +290,9 @@ death <- top_20 %>%
     theme(legend.position = 'none') +
     scale_fill_manual(values = rev(mycolors)) +
     scale_y_continuous(labels = scales::label_number_si()) +
+    labs(y="Death Cases", x="") +
     coord_flip() +
-    labs(x="Death Cases", title="Top 20 countries for Death Cases")
+    ggtitle("Top 20 countries for Death Cases")
 
 ggplotly(death)
 ```
@@ -307,8 +308,9 @@ active<- top_20 %>%
     theme(legend.position = 'none') +
     scale_fill_manual(values = rev(mycolors)) +
     scale_y_continuous(labels = scales::label_number_si()) +
+    labs(y="Active Cases", x="") +
     coord_flip() +
-    labs(x="Active Cases", title="Top 20 countries for Active Cases")
+    ggtitle("Top 20 countries for Active Cases")
 
 ggplotly(active)
 ```

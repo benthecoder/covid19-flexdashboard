@@ -7,7 +7,7 @@ on:
 
 jobs:
   render:
-    name: <nameyourjob>
+    name: refresh the dashboard
     runs-on: macOS-latest
     steps:
       - uses: actions/checkout@v1
