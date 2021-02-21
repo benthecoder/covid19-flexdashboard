@@ -26,4 +26,4 @@ jobs:
       - run: sudo apt-get install -y --no-install-recommends libcurl4-openssl-dev
       - run: R -e 'renv::restore()'
       - name: Render Rmarkdown
-      - run: bash ./bash/data_refresh.sh
+        run: bash ./bash/data_refresh.sh
