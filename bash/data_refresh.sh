@@ -2,7 +2,6 @@
 
 echo "Rendering the dashboard..."
 
-Rscript -e "install.pacakges("rmarkdown")"
 Rscript -e "rmarkdown::render_site()"
 
 if [[ "$(git status --porcelain)" != "" ]]; then
