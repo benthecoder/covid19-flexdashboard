@@ -37,5 +37,9 @@ vignettes/*.pdf
 
 # R Environment Variables
 .Renviron
+
+# for github pages to show index
 docs/README.html
+
+# mac 
 .DS_Store
