@@ -9,6 +9,13 @@ The source of data for this dashboard is from the R package [coronavirus](https:
 
 This dashboard updates daily through the Github Actions workflow. You can find the yaml file [here](.github/workflows/main.yml)
 
+## ToDo
+
+- [ ] Write blog post about how to auto update dashboard
+- [ ] learn how to dockerize dashboard for github actions to run image
+- [ ] Add news section to dashboard for latest news
+- [ ] Research better ways to present dashboard with new functionalities
+
 ## Packages
 
 * Dashboard interface - `flexdashboard`
@@ -21,5 +28,6 @@ This dashboard updates daily through the Github Actions workflow. You can find t
 ## Credits
 * [Rami Krispin](https://github.com/RamiKrispin/coronavirus_dashboard)
 
-## References for GHA 
+## References for github actions for R 
 * [automate yml](https://github.com/lc5415/COVID19/blob/master/.github/workflows/automate.yml)
+* [r-lib/actions](https://github.com/r-lib/actions/tree/master/examples#readme)
