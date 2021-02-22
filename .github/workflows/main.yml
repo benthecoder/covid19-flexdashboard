@@ -33,9 +33,11 @@ jobs:
       - name: Install dependencies
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
-          install.packages(c("rmarkdown", "flexdashboard", "data.table",
+          install.packages("remotes")
+          remotes::install_local(".")
+          remotes::install_cran(c("rmarkdown", "flexdashboard", "data.table",
           "dplyr", "tidyr", "magrittr", "purrr", "leafpop", "RColorBrewer",
-          "forcats", "glue", "plotly", "leaflet"), repos = "https://cran.rstudio.com/")
+          "forcats", "glue", "plotly", "leaflet"))
         shell: Rscript {0}
         
       - name: Render Rmarkdown
