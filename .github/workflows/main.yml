@@ -22,23 +22,21 @@ jobs:
           
       - name: Setting up pandoc for Rmd docs
         uses: r-lib/actions/setup-pandoc@v1
-        
+
+      - name: Query dependencies
+        run: |
+          install.packages('remotes')
+          saveRDS(remotes::dev_package_deps(dependencies = TRUE), ".github/depends.Rds", version = 2)
+          writeLines(sprintf("R-%i.%i", getRversion()$major, getRversion()$minor), ".github/R-version")
+        shell: Rscript {0}
+  
       - name: Cache R packages
-        id: cache
+        if: runner.os != 'Windows'
         uses: actions/cache@v2
         with:
           path: ${{ env.R_LIBS_USER }}
-          key: ${{ runner.os }}-
-            
-      - name: Install dependencies
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: |
-          install.packages("remotes")
-          remotes::install_local(".")
-          remotes::install_cran(c("rmarkdown", "flexdashboard", "data.table",
-          "dplyr", "tidyr", "magrittr", "purrr", "leafpop", "RColorBrewer",
-          "forcats", "glue", "plotly", "leaflet"))
-        shell: Rscript {0}
+          key: ${{ runner.os }}-${{ hashFiles('.github/R-version') }}-1-${{ hashFiles('.github/depends.Rds') }}
+          restore-keys: ${{ runner.os }}-${{ hashFiles('.github/R-version') }}-1-
         
       - name: Render Rmarkdown
         run: |
