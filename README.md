@@ -18,3 +18,6 @@ The source of data for this dashboard is from the R package [coronavirus](https:
 
 ## Credits
 * [Rami Krispin](https://github.com/RamiKrispin/coronavirus_dashboard)
+
+## References for GHA 
+* [automate yml](https://github.com/lc5415/COVID19/blob/master/.github/workflows/automate.yml)
