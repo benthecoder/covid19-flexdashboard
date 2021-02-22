@@ -2,19 +2,53 @@ name: Data Refresh
 
 on:
   schedule:
-    - cron: '0 */6 * * *'
+    - cron: '0 0 * * *'
   workflow_dispatch:
 
 jobs:
-  render:
+  build:
     name: refresh the dashboard
     runs-on: macOS-latest
+    strategy:
+      matrix:
+        r-version: [4.0.2]
+        
     steps:
-      - uses: actions/checkout@v1
-      - uses: r-lib/actions/setup-r@v1
+      - uses: actions/checkout@v2
+      - name: Set up R ${{ matrix.r-version }}
+        uses: r-lib/actions/setup-R@v1
         with:
-          r-version: '4.0.2'
-      - uses: r-lib/actions/setup-pandoc@v1
+          r-version: ${{ matrix.r-version }}
+          
+      - name: Setting up pandoc for Rmd docs
+        uses: r-lib/actions/setup-pandoc@v1
+        
+      - name: Cache R packages
+        id: cache
+        uses: actions/cache@v2
+        with:
+          path: ${{ env.R_LIBS_USER }}
+          key: ${{ runner.os }}-
+            
+      - name: Install dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          Rscript -e 'install.packages(c("rmarkdown", "flexdashboard", "data.table",
+          "dplyr", "tidyr", "magrittr", "purrr", "leafpop", "RColorBrewer",
+          "forcats", "glue", "plotly", "leaflet"))'
+        
       - name: Render Rmarkdown
-        run: bash ./bash/data_refresh.sh 
-
+        run: |
+          Rscript -e 'rmarkdown::render_site()'
+          
+      - name: Commit files
+        run: |
+          git config --local user.email "benthecoder07@gmail.com"
+          git config --local user.name "benthecoder"
+          git commit -m "Update Dashboard" -a
+          
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.ref }}
