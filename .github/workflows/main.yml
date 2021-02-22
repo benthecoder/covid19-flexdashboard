@@ -35,7 +35,7 @@ jobs:
         run: |
           Rscript -e 'install.packages(c("rmarkdown", "flexdashboard", "data.table",
           "dplyr", "tidyr", "magrittr", "purrr", "leafpop", "RColorBrewer",
-          "forcats", "glue", "plotly", "leaflet"))'
+          "forcats", "glue", "plotly", "leaflet"), repos = "http://cran.us.r-project.org")'
         
       - name: Render Rmarkdown
         run: |
