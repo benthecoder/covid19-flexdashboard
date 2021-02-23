@@ -1,6 +1,6 @@
 ## The COVID-19 Dashboard
 
-This dashboard provides an overview of the COVID-19 (2019-nCoV) epidemic. This dashboard was built with R using Rmarkdown and the Flexdashboard package. 
+This dashboard provides an overview of the COVID-19 (2019-nCoV) epidemic. This dashboard was built with R using [Rmarkdown](https://rmarkdown.rstudio.com/) and the [Flexdashboard](https://github.com/rstudio/flexdashboard) package. 
 
 ## Data
 [![Data Refresh](https://github.com/benthecoder/covid19-flexdashboard/actions/workflows/main.yml/badge.svg)](https://github.com/benthecoder/covid19-flexdashboard/actions/workflows/main.yml)
@@ -11,9 +11,8 @@ This dashboard updates daily through the Github Actions workflow. You can find t
 
 ## ToDo
 
-- [ ] Write blog post about how to auto update dashboard
 - [ ] learn how to dockerize dashboard for github actions to run image
-- [ ] Add vaccination plots
+- [ ] Add vaccination data and visualizations
 - [ ] Add news section to dashboard for latest news
 - [ ] Research better ways to present dashboard with new functionalities
 
@@ -32,3 +31,6 @@ This dashboard updates daily through the Github Actions workflow. You can find t
 ## References for github actions for R 
 * [automate yml](https://github.com/lc5415/COVID19/blob/master/.github/workflows/automate.yml)
 * [r-lib/actions](https://github.com/r-lib/actions/tree/master/examples#readme)
+
+## Tutorial on how to host flexdashboard on github pages
+* [pbatey/flexdashboard-example](https://github.com/pbatey/flexdashboard-example)
