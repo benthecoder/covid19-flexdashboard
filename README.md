@@ -13,6 +13,7 @@ This dashboard updates daily through the Github Actions workflow. You can find t
 
 - [ ] Write blog post about how to auto update dashboard
 - [ ] learn how to dockerize dashboard for github actions to run image
+- [ ] Add vaccination plots
 - [ ] Add news section to dashboard for latest news
 - [ ] Research better ways to present dashboard with new functionalities
 
