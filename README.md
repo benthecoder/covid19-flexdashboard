@@ -25,12 +25,12 @@ This dashboard updates daily through the Github Actions workflow. You can find t
 * Strings - `glue`
 * Data Source - `coronavirus`
 
-## Credits
-* [Rami Krispin](https://github.com/RamiKrispin/coronavirus_dashboard)
-
 ## References for github actions for R 
 * [automate yml](https://github.com/lc5415/COVID19/blob/master/.github/workflows/automate.yml)
 * [r-lib/actions](https://github.com/r-lib/actions/tree/master/examples#readme)
 
 ## Tutorial on how to host flexdashboard on github pages
 * [pbatey/flexdashboard-example](https://github.com/pbatey/flexdashboard-example)
+
+## Credits
+* [Rami Krispin](https://github.com/RamiKrispin/coronavirus_dashboard)
