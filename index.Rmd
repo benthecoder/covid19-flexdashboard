@@ -1,6 +1,5 @@
 ---
 title: "COVID-19 Dashboard"
-author: "Benedict Neo"
 output: 
   flexdashboard::flex_dashboard:
     orientation: rows
@@ -319,8 +318,6 @@ ggplotly(active)
 About
 =======================================================================
 
-**The COVID-19 Dashboard**
-
 This dashboard provides an overview of the COVID-19 (2019-nCoV) epidemic. This dashboard was built with R using Rmarkdown and the Flexdashboard package. The Github Repository for this dashboard available [here](https://github.com/benthecoder/covid19-flexdashboard)
 
 **Data**
@@ -336,4 +333,7 @@ The source of data for this dashboard is from the R package [coronavirus](https:
 * Strings - `glue`
 * Data Source - `coronavirus`
 
-This dashboard was last updated at `r max(df$date)`
+**Update**
+
+* This dashboard was last updated at **`r format(Sys.time(), "%A, %B %d %Y at %X")`**
+* The latest date from the data is **`r max(df$date)`**
