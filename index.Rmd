@@ -335,5 +335,5 @@ The source of data for this dashboard is from the R package [coronavirus](https:
 
 **Update**
 
-* This dashboard was last updated at **`r format(Sys.time(), "%A, %B %d %Y at %X")`**
+* This dashboard was last updated at **`r paste0(format(Sys.time(), "%A, %B %d %Y at %X"), " (", Sys.timezone(), ")")`**
 * The latest date from the data is **`r max(df$date)`**
