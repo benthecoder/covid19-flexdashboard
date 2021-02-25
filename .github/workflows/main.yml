@@ -25,7 +25,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ${{ env.R_LIBS_USER }}
-          key: ${{ runner.os }}-
+          key: ${{ runner.os }}-covid19
           restore-keys: |
             ${{ runner.os }}-
             
@@ -37,7 +37,7 @@ jobs:
         run: |
           install.packages(c("rmarkdown", "flexdashboard", "data.table",
           "dplyr", "tidyr", "magrittr", "purrr", "leafpop", "RColorBrewer",
-          "forcats", "glue", "plotly", "leaflet"), repos = "https://cran.rstudio.com/")
+          "forcats", "glue", "plotly", "leaflet", "DT"), repos = "https://cran.rstudio.com/")
         shell: Rscript {0}
 
       - name: Render Rmarkdown
