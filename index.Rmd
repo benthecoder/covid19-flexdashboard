@@ -2,6 +2,7 @@
 title: "COVID-19 Dashboard"
 output: 
   flexdashboard::flex_dashboard:
+    theme: flatly
     orientation: rows
     social: menu
     source_code: embed
@@ -36,6 +37,9 @@ library(plotly)
 library(leaflet)
 library(leafpop)
 library(RColorBrewer)
+
+## For displaying tables
+library(DT)
 
 #------------------ Data ------------------
 url <- "https://raw.githubusercontent.com/RamiKrispin/coronavirus/master/csv/coronavirus.csv"
@@ -186,13 +190,13 @@ map_object %>%
 ```
 
 
-Daily Cumulative Cases 
+Daily 
 =======================================================================
 
 Column {data-width=400}
 -------------------------------------
 
-### Time Series
+### Daily Cumulative Cases
     
 ```{r}
 fig <- plot_ly(
@@ -225,7 +229,7 @@ fig
 ### Histogram of Daily Cases
 
 ```{r}
-g <- ggplot(data=df_daily, aes(date, confirmed), color="black") +
+g <- ggplot(data=df_daily, aes(date, confirmed)) +
     geom_histogram(stat="identity") +
     theme_classic() +
     scale_y_continuous(labels = scales::label_number_si())
@@ -314,6 +318,20 @@ active<- top_20 %>%
 ggplotly(active)
 ```
 
+Data
+=======================================================================
+```{r}
+dt <- df %>%
+    group_by(country, type) %>%
+    summarise(total = sum(cases), .groups = "drop") %>%
+    pivot_wider(names_from = type, values_from = total) %>%
+    mutate(active = confirmed - death - recovered)
+
+DT::datatable(dt, options = list(
+  bPaginate = FALSE
+))
+```
+
 
 About
 =======================================================================
@@ -332,6 +350,7 @@ The source of data for this dashboard is from the R package [coronavirus](https:
 * Mapping - `leaflet`, `leafpop` 
 * Strings - `glue`
 * Data Source - `coronavirus`
+* Data display - `DT`
 
 **Update**
 
