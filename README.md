@@ -1,5 +1,7 @@
 ## The COVID-19 Dashboard
 
+![screenshot of dashboard](images/dashboard.png)
+
 This dashboard provides an overview of the COVID-19 (2019-nCoV) epidemic. This dashboard was built with R using [Rmarkdown](https://rmarkdown.rstudio.com/) and the [Flexdashboard](https://rmarkdown.rstudio.com/flexdashboard/index.html) package. 
 
 ## Data
@@ -9,16 +11,7 @@ The source of data for this dashboard is from the R package [coronavirus](https:
 
 This dashboard updates daily through the Github Actions workflow. You can find the yaml file [here](.github/workflows/main.yml)
 
-## ToDo
-
-- [ ] Add data section that displays table with reactable
-- [ ] learn how to dockerize dashboard for github actions to run image
-- [ ] Add vaccination data and visualizations
-- [ ] Add news section to dashboard for latest news
-- [ ] Research better ways to present dashboard with new functionalities
-- [ ] Add [dygraphs](https://rstudio.github.io/dygraphs/) to plots
-
-## Packages
+## Packages Used
 
 * Dashboard interface - `flexdashboard`
 * Visualization - `plotly`, `RColorBrewer`
@@ -27,6 +20,15 @@ This dashboard updates daily through the Github Actions workflow. You can find t
 * Strings - `glue`
 * Data Source - `coronavirus`
 * Data display - `DT`
+
+## ToDo
+
+- [ ] Add data section that displays table with reactable
+- [ ] learn how to dockerize dashboard for github actions to run image
+- [ ] Add vaccination data and visualizations
+- [ ] Add news section to dashboard for latest news
+- [ ] Research better ways to present dashboard with new functionalities
+- [ ] Add [dygraphs](https://rstudio.github.io/dygraphs/) to plots
 
 ## References for github actions for R 
 * [automate yml](https://github.com/lc5415/COVID19/blob/master/.github/workflows/automate.yml)
