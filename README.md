@@ -25,9 +25,8 @@ This dashboard updates daily through the Github Actions workflow. You can find t
 
 ## ToDo
 
-- [ ] Add data section that displays table with reactable
-- [ ] learn how to dockerize dashboard for github actions to run image
 - [ ] Add vaccination data and visualizations
+- [ ] learn how to dockerize dashboard for github actions to run image
 - [ ] Add news section to dashboard for latest news
 - [ ] Research better ways to present dashboard with new functionalities
 - [ ] Add [dygraphs](https://rstudio.github.io/dygraphs/) to plots
