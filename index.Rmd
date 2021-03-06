@@ -38,9 +38,14 @@ library(leaflet)
 library(leafpop)
 library(RColorBrewer)
 
+# Dates
+library(lubridate)
+
 ## For displaying tables
 library(DT)
+```
 
+```{r cases_data}
 #------------------ Data ------------------
 url <- "https://raw.githubusercontent.com/RamiKrispin/coronavirus/master/csv/coronavirus.csv"
 df <- fread(url) %>%
@@ -65,7 +70,7 @@ df_daily <- df %>%
         active_cum = cumsum(active)
     )
 
-df_tree <- df %>%
+df_country <- df %>%
     group_by(country, type) %>%
     summarise(total = sum(cases), .groups = "drop") %>%
     pivot_wider(names_from = type, values_from = total) %>%
@@ -75,7 +80,7 @@ df_tree <- df %>%
                  values_to = "total")
 
 # for global statistics
-df_world <- df_tree %>%
+df_world <- df_country %>%
     group_by(type) %>%
     summarise(total = sum(total), .groups = "drop") %>%
     pivot_wider(names_from = type, values_from = total)
@@ -90,6 +95,40 @@ df_map <- df %>%
 
 df_map.split <- df_map %>%
     split(df_map$type)
+
+
+```
+
+
+```{r vax_data}
+# Vaccination Data
+
+url2 <- "https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/vaccinations/vaccinations.csv"
+
+df_vax <- fread(url2) %>% 
+  replace(is.na(.), 0) %>% 
+  mutate(location = factor(location, levels = unique(location))) %>% 
+  as_tibble()
+
+# glimpse(df_vacc)
+
+## daily vaccinations
+
+df_vax_daily <- df_vax %>% 
+  select(date, location, daily_vaccinations) %>% 
+  group_by(location, date) %>% 
+  summarise(total = sum(daily_vaccinations), .groups="drop") %>% 
+  arrange(-total) %>% 
+  pivot_wider(names_from = date, values_from = total) %>% 
+  replace(is.na(.), 0) %>% 
+  mutate(across(where(is.numeric), log)) %>% 
+  slice(1:20) %>% 
+  pivot_longer(cols = -location, 
+               names_to = "date", 
+               values_to = "total") %>% 
+  mutate(date = ymd(date))
+
+# View(df_vax_daily)
 ```
 
 
@@ -245,7 +284,7 @@ Column {.tabset}
 -------------------------------------
 
 ```{r}
-top_20 <- df_tree %>% 
+top_20 <- df_country %>% 
     group_by(country, type) %>% 
     pivot_wider(names_from = type, values_from=total) %>% 
     arrange(-confirmed) %>% 
@@ -318,7 +357,7 @@ active<- top_20 %>%
 ggplotly(active)
 ```
 
-Data
+Cases Data
 =======================================================================
 ```{r}
 dt <- df %>%
@@ -332,6 +371,21 @@ DT::datatable(dt, options = list(
 ))
 ```
 
+Vaccination 
+=======================================================================
+
+```{r}
+vax_daily <- ggplot(df_vax_daily, aes(x=date, y=total, color=location)) +
+  geom_line() +
+  theme_classic() +
+  theme(legend.position = 'none') +
+  scale_colour_manual(values = rev(mycolors)) +
+  scale_x_date(date_labels = "%b %d") +
+  scale_y_continuous(labels = scales::label_number_si()) +
+  ggtitle("Daily COVID-19 vaccine doses administered (Log)")
+
+ggplotly(vax_daily)
+```
 
 About
 =======================================================================
@@ -341,6 +395,8 @@ This dashboard provides an overview of the COVID-19 (2019-nCoV) epidemic. This d
 **Data**
 
 The source of data for this dashboard is from the R package [coronavirus](https://github.com/RamiKrispin/coronavirus). With the raw data pulled from the [COVID-19 Data Repository by the Center for Systems Science and Engineering (CSSE) at Johns Hopkins University](https://github.com/CSSEGISandData/COVID-19)
+
+The source of vaccination data can be found at the Our World in Data [vaccination github repo]
 
 **Packages**
 
