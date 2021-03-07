@@ -514,7 +514,8 @@ The source of vaccination data can be found at the Our World in Data [vaccinatio
 **Packages**
 
 * Dashboard interface - `flexdashboard`
-* Visualization - `plotly`, `RColorBrewer`
+* Visualization - `plotly`, `RColorBrewer`, `ggplot2`
+* Data Import - `data.table`
 * Data manipulation - `dplyr`, `tidyr`, `purrr`, `forcats`
 * Mapping - `leaflet`, `leafpop` 
 * Strings - `glue`
@@ -524,9 +525,6 @@ The source of vaccination data can be found at the Our World in Data [vaccinatio
 * Scales - `scales`
 
 **Update**
-```{r}
-max(df_vax$date)
-```
 
 * This dashboard was last updated at **`r paste0(format(Sys.time(), "%A, %B %d %Y at %X"), " (", Sys.timezone(), ")")`**
 * The latest date from the data is **`r max(df$date)`**
