@@ -25,7 +25,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ${{ env.R_LIBS_USER }}
-          key: ${{ runner.os }}-covid19
+          key: ${{ runner.os }}-covid19_flex
           restore-keys: |
             ${{ runner.os }}-
             
