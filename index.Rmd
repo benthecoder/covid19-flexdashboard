@@ -16,7 +16,11 @@ output:
 }
 </style>      
 
-```{r setup, include=FALSE, warnings=FALSE, message=FALSE}
+```{r, include=FALSE, warnings=FALSE, message=FALSE}
+knitr::opts_chunk$set(message = FALSE, warning=FALSE)
+```
+
+```{r dependencies, include=FALSE, warnings=FALSE, message=FALSE}
 #------------------ Packages ------------------
 ## For Dashboard
 library(flexdashboard)
@@ -43,6 +47,8 @@ library(lubridate)
 
 ## For displaying tables
 library(DT)
+
+theme_set(theme_classic())
 ```
 
 ```{r cases_data}
@@ -95,8 +101,6 @@ df_map <- df %>%
 
 df_map.split <- df_map %>%
     split(df_map$type)
-
-
 ```
 
 
@@ -113,22 +117,6 @@ df_vax <- fread(url2) %>%
 # glimpse(df_vacc)
 
 ## daily vaccinations
-
-df_vax_daily_log <- df_vax %>% 
-  select(date, location, daily_vaccinations) %>% 
-  group_by(location, date) %>% 
-  summarise(total = sum(daily_vaccinations), .groups="drop") %>%
-  filter(location != "World") %>% 
-  arrange(-total) %>% 
-  pivot_wider(names_from = date, values_from = total) %>% 
-  replace(is.na(.), 0) %>% 
-  mutate(across(where(is.numeric), log)) %>% 
-  slice(1:20) %>% 
-  pivot_longer(cols = -location, 
-               names_to = "date", 
-               values_to = "total") %>% 
-  mutate(date = ymd(date))
-
 df_vax_daily <- df_vax %>% 
   select(date, location, daily_vaccinations) %>% 
   group_by(location, date) %>% 
@@ -136,19 +124,33 @@ df_vax_daily <- df_vax %>%
   filter(location != "World") %>% 
   arrange(-total) %>%
   pivot_wider(names_from = date, values_from = total) %>%
+  # replace(is.na(.), 0) %>% 
+  # mutate(across(where(is.numeric), log)) %>% 
   slice(1:20) %>% 
   pivot_longer(cols = -location, 
                names_to = "date", 
                values_to = "total") %>% 
   mutate(date = ymd(date)) 
 
+
+# world statistics
+df_world_vax <- df_vax %>% 
+  select(location,
+         total_vaccinations,
+         people_vaccinated,
+         people_fully_vaccinated,
+  ) %>% 
+  filter(location == "World") %>% 
+  summarise(total_vax = max(total_vaccinations),
+            ppl_once = max(people_vaccinated),
+            fully_vax = max(people_fully_vaccinated)) %>% 
+  mutate(across(where(is.numeric), scales::comma))
+
+# total vaccines administered
 df_vax_total <- df_vax %>% 
-  select(location, total_vaccinations) %>% 
+  select(location, iso_code, total_vaccinations) %>% 
   group_by(location) %>% 
-  filter(total_vaccinations == max(total_vaccinations), location != "World") %>% 
-  arrange(-total_vaccinations) %>% 
-  ungroup() %>% 
-  slice(1:20) 
+  filter(total_vaccinations == max(total_vaccinations), location != "World") 
 ```
 
 
@@ -290,7 +292,6 @@ fig
 ```{r}
 g <- ggplot(data=df_daily, aes(date, confirmed)) +
     geom_histogram(stat="identity") +
-    theme_classic() +
     scale_y_continuous(labels = scales::label_number_si())
 
 ggplotly(g)
@@ -331,7 +332,6 @@ confirmed <- top_20 %>%
     mutate(country = fct_reorder(country, confirmed)) %>% 
     ggplot(top_20, mapping = aes(x=country, y=confirmed, fill=country)) + 
     geom_bar(stat='identity') +
-    theme_classic() +
     theme(legend.position = 'none') +
     scale_fill_manual(values = rev(mycolors)) +
     scale_y_continuous(labels = scales::label_number_si()) +
@@ -348,7 +348,6 @@ death <- top_20 %>%
     mutate(country = fct_reorder(country, death)) %>% 
     ggplot(top_20, mapping = aes(x=country, y=death, fill=country)) + 
     geom_bar(stat='identity') +
-    theme_classic() +
     theme(legend.position = 'none') +
     scale_fill_manual(values = rev(mycolors)) +
     scale_y_continuous(labels = scales::label_number_si()) +
@@ -366,7 +365,6 @@ active<- top_20 %>%
     mutate(country = fct_reorder(country, active)) %>% 
     ggplot(top_20, mapping = aes(x=country, y=active, fill=country)) + 
     geom_bar(stat='identity') +
-    theme_classic() +
     theme(legend.position = 'none') +
     scale_fill_manual(values = rev(mycolors)) +
     scale_y_continuous(labels = scales::label_number_si()) +
@@ -377,81 +375,129 @@ active<- top_20 %>%
 ggplotly(active)
 ```
 
-Cases Data
-=======================================================================
+### Cases Data
+
 ```{r}
 dt <- df %>%
-    group_by(country, type) %>%
-    summarise(total = sum(cases), .groups = "drop") %>%
-    pivot_wider(names_from = type, values_from = total) %>%
-    mutate(active = confirmed - death - recovered)
+  group_by(country, type) %>%
+  summarise(total = sum(cases), .groups = "drop") %>%
+  pivot_wider(names_from = type, values_from = total) %>%
+  mutate(active = confirmed - death - recovered)
 
-DT::datatable(dt, options = list(
-  bPaginate = FALSE
-))
+DT::datatable(dt, options = list(bPaginate = FALSE, scrollX = TRUE))
 ```
 
 Vaccination 
 =======================================================================
 
-Row {.tabset}
+Row
 -----------------------------------------------------------------------
 
-### Linear
+### Total Doses {.value-box}
 
 ```{r}
+valueBox(value = df_world_vax$total_vax,
+         caption = "Total doses administered",
+         color = "#228B22")
+```
 
+
+### At least one {.value-box}
+
+```{r}
+valueBox(value = df_world_vax$ppl_once,
+         caption = "No. of people vaccinated (at least one dose)",
+         color = "#228B22")
+```
+
+
+### People Fully vaccinated {.value-box}
+
+```{r}
+valueBox(value = df_world_vax$fully_vax, 
+         caption = "No. of people fully vaccinated", 
+         color = "#228B22")
+```
+
+
+Column {.tabset}
+-----------------------------------------------------------------------
+
+```{r}
 # scales::number(total, big.mark = "", accuracy = 1))
-vax_daily <-
-  ggplot(df_vax_daily, aes(x = date, y = total, color = location, )) +
-  geom_line() +
-  theme_classic() +
-  theme(legend.position = 'none') +
-  scale_colour_manual(values = mycolors) +
-  scale_x_date(date_labels = "%b %d") +
-  scale_y_continuous(labels = scales::label_number()) +
-  ggtitle("Daily COVID-19 vaccine doses administered")
-
-ggplotly(vax_daily)
+# vax_daily <-
+#   ggplot(df_vax_daily, aes(x = date, y = total, color = location, )) +
+#   geom_line() +
+#   theme(legend.position = 'none') +
+#   scale_colour_manual(values = mycolors) +
+#   scale_x_date(date_labels = "%b %d") +
+#   scale_y_continuous(labels = scales::label_number()) +
+#   ggtitle("Daily COVID-19 vaccine doses administered")
+# 
+# ggplotly(vax_daily)
 ```
 
-
-### Log
+### Map
 
 ```{r}
-vax_daily_log <-
-  ggplot(df_vax_daily_log, aes(x = date, y = total, color = location)) +
-  geom_line() +
-  theme_classic() +
-  theme(legend.position = 'none') +
-  scale_colour_manual(values = mycolors) +
-  scale_x_date(date_labels = "%b %d") +
-  ggtitle("Daily COVID-19 vaccine doses administered")
+# figure out how to use iso code to create leaflet maps
+# https://www.r-graph-gallery.com/183-choropleth-map-with-leaflet.html
 
-ggplotly(vax_daily_log)
+# Plotly choroplet map
+# https://plotly.com/r/choropleth-maps/
+# light grey boundaries
+l <- list(color = toRGB("grey"), width = 0.5)
+
+# specify map projection/options
+g <- list(
+  showframe = FALSE,
+  showcoastlines = FALSE,
+  projection = list(type = 'Mercator')
+)
+# add trace
+vax_map <- plot_geo(df_vax_total)
+vax_map <- vax_map %>% add_trace(
+  z = ~ total_vaccinations,
+  color = ~ total_vaccinations,
+  colors = 'Greens',
+  text = ~ location,
+  locations = ~ iso_code,
+  marker = list(line = l)
+)
+
+# add title to colorbar
+vax_map <- vax_map %>% colorbar(title = 'Total vaccinations (M)')
+
+# add title and subtitle
+vax_map <- vax_map %>%
+  layout(title = 'Total COVID-19 Vaccination Doses Administered<br>Source:<a href="https://github.com/owid/covid-19-data/tree/master/public/data/vaccinations">Our World in Data</a>', geo = g)
+
+vax_map
 ```
 
-Row {.tabset}
------------------------------------------------------------------------
-
-### COVID-19 vaccine doses administered
+### Top 20
 
 ```{r}
 vax_total <- df_vax_total %>%
+  arrange(-total_vaccinations) %>% 
+  ungroup() %>% 
+  slice(1:20) %>% 
   mutate(location = fct_reorder(location, total_vaccinations)) %>%
   ggplot(aes(
     x = total_vaccinations,
     y = location,
     fill = location,
-    text = paste0("Total: ", total_vaccinations)
-  )) +
+    label = scales::label_number_si(accuracy = 0.01)(total_vaccinations)
+  )) + 
   geom_bar(stat = "identity") +
-  theme_classic() +
+  geom_text(color="grey50", size = 4) +
   theme(legend.position = 'none') +
   scale_fill_manual(values = mycolors) +
-  scale_x_continuous(labels = scales::label_number_si())
+  scale_x_continuous(labels = scales::label_number_si(), limits = c(0, 1e8)) +
+  labs(x="total vaccinations", y="")
 
-ggplotly(vax_total, tooltip = "text")
+ggplotly(vax_total) %>% 
+  style(hoverinfo = "none", textposition = "right")
 ```
 
 About
@@ -478,6 +524,10 @@ The source of vaccination data can be found at the Our World in Data [vaccinatio
 * Scales - `scales`
 
 **Update**
+```{r}
+max(df_vax$date)
+```
 
 * This dashboard was last updated at **`r paste0(format(Sys.time(), "%A, %B %d %Y at %X"), " (", Sys.timezone(), ")")`**
 * The latest date from the data is **`r max(df$date)`**
+* The latest date from the vaccination data is **`r max(df_vax$date)`** 
