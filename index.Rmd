@@ -114,10 +114,11 @@ df_vax <- fread(url2) %>%
 
 ## daily vaccinations
 
-df_vax_daily <- df_vax %>% 
+df_vax_daily_log <- df_vax %>% 
   select(date, location, daily_vaccinations) %>% 
   group_by(location, date) %>% 
-  summarise(total = sum(daily_vaccinations), .groups="drop") %>% 
+  summarise(total = sum(daily_vaccinations), .groups="drop") %>%
+  filter(location != "World") %>% 
   arrange(-total) %>% 
   pivot_wider(names_from = date, values_from = total) %>% 
   replace(is.na(.), 0) %>% 
@@ -128,7 +129,26 @@ df_vax_daily <- df_vax %>%
                values_to = "total") %>% 
   mutate(date = ymd(date))
 
-# View(df_vax_daily)
+df_vax_daily <- df_vax %>% 
+  select(date, location, daily_vaccinations) %>% 
+  group_by(location, date) %>% 
+  summarise(total = sum(daily_vaccinations), .groups="drop") %>%
+  filter(location != "World") %>% 
+  arrange(-total) %>%
+  pivot_wider(names_from = date, values_from = total) %>%
+  slice(1:20) %>% 
+  pivot_longer(cols = -location, 
+               names_to = "date", 
+               values_to = "total") %>% 
+  mutate(date = ymd(date)) 
+
+df_vax_total <- df_vax %>% 
+  select(location, total_vaccinations) %>% 
+  group_by(location) %>% 
+  filter(total_vaccinations == max(total_vaccinations), location != "World") %>% 
+  arrange(-total_vaccinations) %>% 
+  ungroup() %>% 
+  slice(1:20) 
 ```
 
 
@@ -374,17 +394,64 @@ DT::datatable(dt, options = list(
 Vaccination 
 =======================================================================
 
+Row {.tabset}
+-----------------------------------------------------------------------
+
+### Linear
+
 ```{r}
-vax_daily <- ggplot(df_vax_daily, aes(x=date, y=total, color=location)) +
+
+# scales::number(total, big.mark = "", accuracy = 1))
+vax_daily <-
+  ggplot(df_vax_daily, aes(x = date, y = total, color = location, )) +
   geom_line() +
   theme_classic() +
   theme(legend.position = 'none') +
-  scale_colour_manual(values = rev(mycolors)) +
+  scale_colour_manual(values = mycolors) +
   scale_x_date(date_labels = "%b %d") +
-  scale_y_continuous(labels = scales::label_number_si()) +
-  ggtitle("Daily COVID-19 vaccine doses administered (Log)")
+  scale_y_continuous(labels = scales::label_number()) +
+  ggtitle("Daily COVID-19 vaccine doses administered")
 
 ggplotly(vax_daily)
+```
+
+
+### Log
+
+```{r}
+vax_daily_log <-
+  ggplot(df_vax_daily_log, aes(x = date, y = total, color = location)) +
+  geom_line() +
+  theme_classic() +
+  theme(legend.position = 'none') +
+  scale_colour_manual(values = mycolors) +
+  scale_x_date(date_labels = "%b %d") +
+  ggtitle("Daily COVID-19 vaccine doses administered")
+
+ggplotly(vax_daily_log)
+```
+
+Row {.tabset}
+-----------------------------------------------------------------------
+
+### COVID-19 vaccine doses administered
+
+```{r}
+vax_total <- df_vax_total %>%
+  mutate(location = fct_reorder(location, total_vaccinations)) %>%
+  ggplot(aes(
+    x = total_vaccinations,
+    y = location,
+    fill = location,
+    text = paste0("Total: ", total_vaccinations)
+  )) +
+  geom_bar(stat = "identity") +
+  theme_classic() +
+  theme(legend.position = 'none') +
+  scale_fill_manual(values = mycolors) +
+  scale_x_continuous(labels = scales::label_number_si())
+
+ggplotly(vax_total, tooltip = "text")
 ```
 
 About
@@ -396,7 +463,7 @@ This dashboard provides an overview of the COVID-19 (2019-nCoV) epidemic. This d
 
 The source of data for this dashboard is from the R package [coronavirus](https://github.com/RamiKrispin/coronavirus). With the raw data pulled from the [COVID-19 Data Repository by the Center for Systems Science and Engineering (CSSE) at Johns Hopkins University](https://github.com/CSSEGISandData/COVID-19)
 
-The source of vaccination data can be found at the Our World in Data [vaccination github repo]
+The source of vaccination data can be found at the Our World in Data [vaccination github repo](https://github.com/owid/covid-19-data/tree/master/public/data/vaccinations)
 
 **Packages**
 
@@ -407,6 +474,8 @@ The source of vaccination data can be found at the Our World in Data [vaccinatio
 * Strings - `glue`
 * Data Source - `coronavirus`
 * Data display - `DT`
+* Dates - `lubridate`
+* Scales - `scales`
 
 **Update**
 

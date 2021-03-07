@@ -25,12 +25,12 @@ This dashboard updates daily through the Github Actions workflow. You can find t
 
 ## ToDo
 
-- [ ] Add [vaccination data](https://ourworldindata.org/covid-vaccinations) and visualizations
+- [ ] Figure out how to scale numbers (commas) with aes text result without losing data in plot
+- [ ] Add value boxes for world vaccinations and percentage of vaccines used
 - [ ] learn how to dockerize dashboard for github actions to run image with rocker
 - [ ] Add news section to dashboard for latest news
-- [ ] Research better ways to present dashboard with new functionalities
 - [ ] Learn D3 and add [r2d3 visualizations](https://rstudio.github.io/r2d3/) to dashboard
-- [ ] Add [dygraphs](https://rstudio.github.io/dygraphs/) to plots
+- [ ] experiment with [dygraphs](https://rstudio.github.io/dygraphs/)
 
 ## References for github actions for R 
 * [automate yml](https://github.com/lc5415/COVID19/blob/master/.github/workflows/automate.yml)
