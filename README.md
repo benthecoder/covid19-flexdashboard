@@ -30,7 +30,7 @@ This dashboard updates daily through the Github Actions workflow. You can find t
 - [ ] learn how to dockerize dashboard for github actions to run image with rocker
 - [ ] Add news section to dashboard for latest news
 - [ ] Learn D3 and add [r2d3 visualizations](https://rstudio.github.io/r2d3/) to dashboard
-- [ ] experiment with [dygraphs](https://rstudio.github.io/dygraphs/)
+- [ ] experiment with [dygraphs](https://rstudio.github.io/dygraphs/) [article](https://www.earthdatascience.org/courses/earth-analytics/time-series-data/interactive-time-series-plots-in-r/)
 
 ## References for github actions for R 
 * [automate yml](https://github.com/lc5415/COVID19/blob/master/.github/workflows/automate.yml)
