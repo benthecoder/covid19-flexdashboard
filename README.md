@@ -16,21 +16,24 @@ This dashboard updates daily through the Github Actions workflow. You can find t
 ## Packages Used
 
 * Dashboard interface - `flexdashboard`
-* Visualization - `plotly`, `RColorBrewer`
+* Visualization - `plotly`, `RColorBrewer`, `ggplot2`
+* Data Import - `data.table`
 * Data manipulation - `dplyr`, `tidyr`, `purrr`, `forcats`
-* Mapping - `leaflet`, `leafpop`
+* Mapping - `leaflet`, `leafpop` 
 * Strings - `glue`
 * Data Source - `coronavirus`
 * Data display - `DT`
+* Dates - `lubridate`
+* Scales - `scales`
 
 ## ToDo
 
-- [ ] Figure out how to scale numbers (commas) with aes text result without losing data in plot
-- [ ] Add value boxes for world vaccinations and percentage of vaccines used
-- [ ] learn how to dockerize dashboard for github actions to run image with rocker
-- [ ] Add news section to dashboard for latest news
+- [ ] Add vaccination data into dashboard with reactable
 - [ ] Learn D3 and add [r2d3 visualizations](https://rstudio.github.io/r2d3/) to dashboard
 - [ ] experiment with [dygraphs](https://rstudio.github.io/dygraphs/) [article](https://www.earthdatascience.org/courses/earth-analytics/time-series-data/interactive-time-series-plots-in-r/)
+- [ ] learn how to dockerize dashboard for github actions to run image with rocker
+- [ ] Add news section to dashboard for latest news
+
 
 ## References for github actions for R 
 * [automate yml](https://github.com/lc5415/COVID19/blob/master/.github/workflows/automate.yml)
