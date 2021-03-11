@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "Rendering the dashboard..."
+echo "Updating the dashboard..."
 
 Rscript -e "rmarkdown::render_site()"
 

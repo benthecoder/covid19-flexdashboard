@@ -11,7 +11,7 @@ This dashboard provides an overview of the COVID-19 (2019-nCoV) epidemic. This d
 
 The source of data for this dashboard is from the R package [coronavirus](https://github.com/RamiKrispin/coronavirus). With the raw data pulled from the [COVID-19 Data Repository by the Center for Systems Science and Engineering (CSSE) at Johns Hopkins University](https://github.com/CSSEGISandData/COVID-19)
 
-This dashboard updates daily through the Github Actions workflow. You can find the yaml file [here](.github/workflows/main.yml)
+This dashboard updates daily through the Github Actions workflow running a docker image I built. You can find the yaml file [here](.github/workflows/main.yml)
 
 ## Packages Used
 
@@ -28,10 +28,10 @@ This dashboard updates daily through the Github Actions workflow. You can find t
 
 ## ToDo
 
+- [x] learn how to dockerize dashboard for github actions to run image with rocker
 - [ ] Add vaccination data into dashboard with reactable
 - [ ] Learn D3 and add [r2d3 visualizations](https://rstudio.github.io/r2d3/) to dashboard
 - [ ] experiment with [dygraphs](https://rstudio.github.io/dygraphs/) [article](https://www.earthdatascience.org/courses/earth-analytics/time-series-data/interactive-time-series-plots-in-r/)
-- [ ] learn how to dockerize dashboard for github actions to run image with rocker
 - [ ] Add news section to dashboard for latest news
 
 
@@ -41,6 +41,10 @@ This dashboard updates daily through the Github Actions workflow. You can find t
 
 ## Tutorial on how to host flexdashboard on github pages
 * [pbatey/flexdashboard-example](https://github.com/pbatey/flexdashboard-example)
+
+## Docker for R
+* [An Introduction to Docker for R Users](https://colinfay.me/docker-r-reproducibility/)
+* [Rocker](https://www.rocker-project.org/)
 
 ## Credits
 * [Rami Krispin](https://github.com/RamiKrispin/coronavirus_dashboard)
