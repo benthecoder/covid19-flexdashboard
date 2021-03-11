@@ -15,6 +15,6 @@ jobs:
       - name: checkout_repo
         uses: actions/checkout@v2
         with: 
-          ref: 'master'
+          ref: 'main'
       - name: Render Rmarkdown
         run: bash ./bash/data_refresh.sh
