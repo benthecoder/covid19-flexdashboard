@@ -10,7 +10,7 @@ jobs:
     name: Update the dashboard
     runs-on: ubuntu-18.04 
     container: 
-     image: benthecoder/covid19_flexdashboard
+     image: covid19_flexdashboard
     steps:
       - name: checkout_repo
         uses: actions/checkout@v2
