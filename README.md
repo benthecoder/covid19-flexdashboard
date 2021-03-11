@@ -29,6 +29,7 @@ This dashboard updates daily through the Github Actions workflow running a docke
 ## ToDo
 
 - [x] learn how to dockerize dashboard for github actions to run image with rocker
+- [ ] figure out how to rebuild docker image if I decide to add more packages. Rebuild new one or is there another way? [may be useful](https://vsupalov.com/rebuilding-docker-image-development/)
 - [ ] Add vaccination data into dashboard with reactable
 - [ ] Learn D3 and add [r2d3 visualizations](https://rstudio.github.io/r2d3/) to dashboard
 - [ ] experiment with [dygraphs](https://rstudio.github.io/dygraphs/) [article](https://www.earthdatascience.org/courses/earth-analytics/time-series-data/interactive-time-series-plots-in-r/)
@@ -45,6 +46,7 @@ This dashboard updates daily through the Github Actions workflow running a docke
 ## Docker for R
 * [An Introduction to Docker for R Users](https://colinfay.me/docker-r-reproducibility/)
 * [Rocker](https://www.rocker-project.org/)
+* [Docker cheatsheet](https://www.saltycrane.com/cheat-sheets/docker/)
 
 ## Credits
 * [Rami Krispin](https://github.com/RamiKrispin/coronavirus_dashboard)
