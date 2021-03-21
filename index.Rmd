@@ -339,7 +339,7 @@ confirmed <- top_20 %>%
     coord_flip() +
     ggtitle("Top 20 countries for Confirmed Cases")
 
-ggplotly(confirmed)
+ggplotly(confirmed, tooltip="confirmed")
 ```
 
 ### Death Cases
@@ -355,7 +355,7 @@ death <- top_20 %>%
     coord_flip() +
     ggtitle("Top 20 countries for Death Cases")
 
-ggplotly(death)
+ggplotly(death, tooltip="death")  
 ```
 
 ### Active Cases
@@ -372,19 +372,26 @@ active<- top_20 %>%
     coord_flip() +
     ggtitle("Top 20 countries for Active Cases")
 
-ggplotly(active)
+ggplotly(active, tooltip="active")
 ```
 
 ### Cases Data
 
 ```{r}
-dt <- df %>%
+df %>%
   group_by(country, type) %>%
   summarise(total = sum(cases), .groups = "drop") %>%
   pivot_wider(names_from = type, values_from = total) %>%
-  mutate(active = confirmed - death - recovered)
-
-DT::datatable(dt, options = list(bPaginate = FALSE, scrollX = TRUE))
+  mutate(active = confirmed - death - recovered) %>%
+  datatable(options = list(
+    bPaginate = FALSE,
+    scrollX = TRUE,
+    columnDefs = list(list(className = 'dt-center', targets = "_all"))
+  ),
+  rownames=FALSE,
+  caption = 'Cases Data',
+  style = 'bootstrap', 
+  class = 'cell-border stripe')
 ```
 
 Vaccination 
@@ -478,6 +485,9 @@ vax_map
 ### Top 20
 
 ```{r}
+# for limits of graph
+max = arrange(df_vax_total, -total_vaccinations)$total_vaccinations[1]
+
 vax_total <- df_vax_total %>%
   arrange(-total_vaccinations) %>% 
   ungroup() %>% 
@@ -493,11 +503,26 @@ vax_total <- df_vax_total %>%
   geom_text(color="grey50", size = 4) +
   theme(legend.position = 'none') +
   scale_fill_manual(values = mycolors) +
-  scale_x_continuous(labels = scales::label_number_si(), limits = c(0, 1e8)) +
+  scale_x_continuous(labels = scales::label_number_si(), limits = c(0, max+20e6)) +
   labs(x="total vaccinations", y="")
 
 ggplotly(vax_total) %>% 
   style(hoverinfo = "none", textposition = "right")
+```
+
+### Vaccination data
+```{r}
+df_vax_total %>% 
+  select(location, total_vaccinations) %>% 
+  datatable(options = list(
+    bPaginate = FALSE,
+    scrollX = TRUE,
+    columnDefs = list(list(className = 'dt-center', targets = "_all"))
+  ),
+  rownames=FALSE,
+  caption = 'Vaccination Data',
+  style = 'bootstrap', 
+  class = 'cell-border stripe')
 ```
 
 About
