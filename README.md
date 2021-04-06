@@ -11,7 +11,7 @@ This dashboard provides an overview of the COVID-19 (2019-nCoV) epidemic. This d
 
 The source of data for this dashboard is from the R package [coronavirus](https://github.com/RamiKrispin/coronavirus). With the raw data pulled from the [COVID-19 Data Repository by the Center for Systems Science and Engineering (CSSE) at Johns Hopkins University](https://github.com/CSSEGISandData/COVID-19)
 
-This dashboard updates daily through the Github Actions workflow running a docker image I built. You can find the yaml file [here](.github/workflows/main.yml)
+This dashboard updates daily through the Github Actions workflow running a docker image I built. You can find the yaml file [here](.github/workflows/main.yml) and the docker image [here](mydocker/Dockerfile)
 
 ## Packages Used
 
