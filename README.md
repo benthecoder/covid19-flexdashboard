@@ -47,6 +47,7 @@ This dashboard updates daily through the Github Actions workflow running a docke
 * [An Introduction to Docker for R Users](https://colinfay.me/docker-r-reproducibility/)
 * [Rocker](https://www.rocker-project.org/)
 * [Docker cheatsheet](https://www.saltycrane.com/cheat-sheets/docker/)
+* [Determine system dependencies for R packages](https://mdneuzerling.com/post/determining-system-dependencies-for-r-projects/)
 
 ## Credits
 * [Rami Krispin](https://github.com/RamiKrispin/coronavirus_dashboard)
